@@ -1,0 +1,669 @@
+   <!DOCTYPE html>
+   <html lang="zh-CN">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>海外流量智能估算器 Pro</title>
+       <style>
+           * {
+               margin: 0;
+               padding: 0;
+               box-sizing: border-box;
+           }
+   
+           :root {
+               --primary: #6366f1;
+               --primary-dark: #4f46e5;
+               --secondary: #ec4899;
+               --accent: #14b8a6;
+               --success: #10b981;
+               --warning: #f59e0b;
+               --danger: #ef4444;
+               --dark: #1e293b;
+               --light: #f8fafc;
+               --gray: #64748b;
+               --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+               --hover-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+           }
+   
+           body {
+               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+               min-height: 100vh;
+               position: relative;
+               overflow-x: hidden;
+           }
+   
+           .bg-animation {
+               position: fixed;
+               width: 100%;
+               height: 100%;
+               top: 0;
+               left: 0;
+               z-index: -1;
+               opacity: 0.3;
+           }
+   
+           .bg-animation span {
+               position: absolute;
+               display: block;
+               width: 20px;
+               height: 20px;
+               background: rgba(255, 255, 255, 0.2);
+               animation: move 25s linear infinite;
+               bottom: -150px;
+           }
+   
+           .bg-animation span:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0; }
+           .bg-animation span:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
+           .bg-animation span:nth-child(3) { left: 70%; width: 120px; height: 120px; animation-delay: 4s; }
+           .bg-animation span:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
+           .bg-animation span:nth-child(5) { left: 65%; width: 40px; height: 40px; animation-delay: 0s; }
+           .bg-animation span:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; }
+           .bg-animation span:nth-child(7) { left: 35%; width: 150px; height: 150px; animation-delay: 7s; }
+           .bg-animation span:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-delay: 15s; animation-duration: 45s; }
+           .bg-animation span:nth-child(9) { left: 20%; width: 45px; height: 45px; animation-delay: 2s; animation-duration: 35s; }
+           .bg-animation span:nth-child(10) { left: 85%; width: 100px; height: 100px; animation-delay: 0s; animation-duration: 11s; }
+   
+           @keyframes move {
+               0% { transform: translateY(0) rotate(0deg); opacity: 0.3; border-radius: 0; }
+               100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; border-radius: 50%; }
+           }
+   
+           .container { max-width: 1600px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+           .header { text-align: center; padding: 60px 20px 40px; color: white; position: relative; }
+           .header h1 { font-size: 3.5em; font-weight: 800; margin-bottom: 20px; background: linear-gradient(45deg, #fff, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradient 3s ease infinite; }
+           @keyframes gradient { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+           .header p { font-size: 1.3em; opacity: 0.95; max-width: 600px; margin: 0 auto; }
+           .quick-start { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 24px; padding: 30px; margin-bottom: 30px; box-shadow: var(--card-shadow); border: 1px solid rgba(255, 255, 255, 0.2); }
+           .quick-start h2 { color: var(--dark); font-size: 1.8em; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+           .quick-templates { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+           .template-card { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 20px; border-radius: 16px; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+           .template-card:hover { transform: translateY(-5px); box-shadow: var(--hover-shadow); }
+           .template-card h3 { font-size: 1.2em; margin-bottom: 8px; }
+           .template-card p { font-size: 0.9em; opacity: 0.9; }
+           .main-content { display: grid; grid-template-columns: 1fr 350px; gap: 30px; margin-bottom: 30px; }
+           .left-panel { display: flex; flex-direction: column; gap: 20px; }
+           .right-panel { position: sticky; top: 20px; height: fit-content; }
+           .card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 25px; box-shadow: var(--card-shadow); border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; }
+           .card:hover { box-shadow: var(--hover-shadow); }
+           .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+           .card-title { font-size: 1.4em; color: var(--dark); font-weight: 600; }
+           .platform-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+           .platform-item { background: var(--light); border: 2px solid transparent; border-radius: 12px; padding: 15px; cursor: pointer; transition: all 0.3s ease; text-align: center; position: relative; overflow: hidden; }
+           .platform-item::after { content: '✓'; position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; background: var(--success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; opacity: 0; transform: scale(0); transition: all 0.3s ease; }
+           .platform-item.selected { border-color: var(--primary); background: linear-gradient(135deg, #e0e7ff, #c7d2fe); transform: translateY(-2px); }
+           .platform-item.selected::after { opacity: 1; transform: scale(1); }
+           .platform-icon { font-size: 2.5em; margin-bottom: 8px; display: block; }
+           .platform-name { font-weight: 500; color: var(--dark); margin-bottom: 4px; }
+           .platform-data { font-size: 0.75em; color: var(--gray); }
+           .slider-group { margin: 20px 0; }
+           .slider-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+           .slider-label span { color: var(--dark); font-weight: 500; }
+           .slider-value { background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.9em; font-weight: 500; }
+           .slider { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 5px; background: #e5e7eb; outline: none; transition: all 0.3s ease; }
+           .slider:hover { background: #d1d5db; }
+           .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--primary); cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+           .slider::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+           .quality-selector { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0; }
+           .quality-btn { padding: 10px 20px; border: 2px solid #e5e7eb; border-radius: 25px; background: white; color: var(--gray); cursor: pointer; transition: all 0.3s ease; font-weight: 500; }
+           .quality-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
+           .results-panel { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-radius: 20px; padding: 30px; position: relative; overflow: hidden; }
+           .results-panel::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: rotate 20s linear infinite; }
+           @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+           .result-item { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.2); position: relative; z-index: 1; }
+           .result-label { font-size: 0.9em; opacity: 0.9; margin-bottom: 5px; }
+           .result-value { font-size: 2.5em; font-weight: 700; margin-bottom: 5px; }
+           .result-detail { font-size: 0.85em; opacity: 0.8; }
+           .chart-container { background: white; border-radius: 15px; padding: 20px; margin-top: 20px; height: 300px; position: relative; }
+           .loading { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; }
+           .loading-circle { width: 60px; height: 60px; border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; }
+           @keyframes spin { to { transform: rotate(360deg); } }
+           @media (max-width: 1024px) { .main-content { grid-template-columns: 1fr; } .right-panel { position: relative; top: 0; } .header h1 { font-size: 2.5em; } }
+           @media (max-width: 768px) { .platform-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); } .quick-templates { grid-template-columns: 1fr; } }
+           @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+           .fade-in { animation: fadeIn 0.6s ease forwards; }
+           .nav-button {
+               display: inline-block;
+               padding: 15px 30px;
+               font-size: 1.2rem;
+               font-weight: 700;
+               color: white;
+               text-align: center;
+               text-decoration: none;
+               background: linear-gradient(45deg, #6366f1, #ec4899, #14b8a6, #f59e0b);
+               background-size: 400% 400%;
+               border: none;
+               border-radius: 50px;
+               box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.2);
+               cursor: pointer;
+               transition: all 0.4s ease-in-out;
+               animation: gradient-animation 10s ease infinite, pulse 2s infinite;
+               position: relative;
+               z-index: 10;
+               margin-top: 20px;
+           }
+   
+           @keyframes gradient-animation {
+               0% { background-position: 0% 50%; }
+               50% { background-position: 100% 50%; }
+               100% { background-position: 0% 50%; }
+           }
+   
+           @keyframes pulse {
+               0% {
+                   transform: scale(1);
+                   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.2);
+               }
+               50% {
+                   transform: scale(1.05);
+                   box-shadow: 0 15px 30px rgba(100, 102, 241, 0.4), 0 10px 10px rgba(100, 102, 241, 0.3);
+               }
+               100% {
+                   transform: scale(1);
+                   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.2);
+               }
+           }
+   
+           .nav-button:hover {
+               transform: translateY(-5px) scale(1.1);
+               box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+           }
+       </style>
+   </head>
+   <body>
+       <div class="bg-animation">
+           <span></span><span></span><span></span><span></span><span></span>
+           <span></span><span></span><span></span><span></span><span></span>
+       </div>
+       <div class="loading" id="loading"><div class="loading-circle"></div></div>
+       <div class="container">
+           <header class="header fade-in">
+               <h1>🌐 海外流量智能估算器 Pro</h1>
+               <p>基于AI算法的智能流量预测，为您提供最精准的数据消耗估算</p>
+               <a href="index.html" class="nav-button">返回智能套餐分析器</a>
+           </header>
+           <div class="quick-start fade-in">
+               <h2>🚀 快速开始 - 选择您的使用场景</h2>
+               <div class="quick-templates">
+                   <div class="template-card" onclick="applyTemplate('student')">
+                       <h3>🎓 留学生活</h3>
+                       <p>学习为主，适度娱乐</p>
+                   </div>
+                   <div class="template-card" onclick="applyTemplate('business')">
+                       <h3>💼 商务出行</h3>
+                       <p>工作优先，高效沟通</p>
+                   </div>
+                   <div class="template-card" onclick="applyTemplate('travel')">
+                       <h3>✈️ 旅游度假</h3>
+                       <p>记录分享，导航查询</p>
+                   </div>
+                   <div class="template-card" onclick="applyTemplate('entertainment')">
+                       <h3>🎮 娱乐达人</h3>
+                       <p>视频游戏，尽情享受</p>
+                   </div>
+               </div>
+           </div>
+           <div class="main-content">
+               <div class="left-panel">
+                   <div class="card fade-in">
+                       <div class="card-header">
+                           <h2 class="card-title">📱 选择您常用的应用</h2>
+                           <button class="quality-btn" onclick="selectAllPlatforms()">全选</button>
+                       </div>
+                       <h3 style="margin: 20px 0 15px; color: var(--dark); font-size: 1.1em;">🎬 视频流媒体</h3>
+                       <div class="platform-grid" id="streamingPlatforms"></div>
+                       <h3 style="margin: 25px 0 15px; color: var(--dark); font-size: 1.1em;">💬 社交通讯</h3>
+                       <div class="platform-grid" id="socialPlatforms"></div>
+                       <h3 style="margin: 25px 0 15px; color: var(--dark); font-size: 1.1em;">💻 工作学习</h3>
+                       <div class="platform-grid" id="workPlatforms"></div>
+                       <h3 style="margin: 25px 0 15px; color: var(--dark); font-size: 1.1em;">🌐 其他应用</h3>
+                       <div class="platform-grid" id="otherPlatforms"></div>
+                   </div>
+                   <div class="card fade-in">
+                       <h2 class="card-title">⏱️ 使用时长设置</h2>
+                       <div class="slider-group">
+                           <div class="slider-label">
+                               <span>🎬 视频观看时长</span>
+                               <span class="slider-value" id="videoHoursValue">3小时/天</span>
+                           </div>
+                           <input type="range" class="slider" id="videoHours" min="0" max="12" step="0.5" value="3">
+                       </div>
+                       <div class="slider-group">
+                           <div class="slider-label">
+                               <span>💬 社交通讯时长</span>
+                               <span class="slider-value" id="socialHoursValue">2小时/天</span>
+                           </div>
+                           <input type="range" class="slider" id="socialHours" min="0" max="8" step="0.5" value="2">
+                       </div>
+                       <div class="slider-group">
+                           <div class="slider-label">
+                               <span>💻 工作学习时长</span>
+                               <span class="slider-value" id="workHoursValue">4小时/天</span>
+                           </div>
+                           <input type="range" class="slider" id="workHours" min="0" max="12" step="0.5" value="4">
+                       </div>
+                       <div class="slider-group">
+                           <div class="slider-label">
+                               <span>🎮 游戏娱乐时长</span>
+                               <span class="slider-value" id="gameHoursValue">1小时/天</span>
+                           </div>
+                           <input type="range" class="slider" id="gameHours" min="0" max="8" step="0.5" value="1">
+                       </div>
+                   </div>
+                   <div class="card fade-in">
+                       <h2 class="card-title">⚙️ 高级设置</h2>
+                       <h3 style="margin: 20px 0 15px; color: var(--dark); font-size: 1em;">视频质量偏好</h3>
+                       <div class="quality-selector">
+                           <button class="quality-btn" data-quality="480p" data-multiplier="0.3">480p 流畅</button>
+                           <button class="quality-btn" data-quality="720p" data-multiplier="0.7">720p 高清</button>
+                           <button class="quality-btn active" data-quality="1080p" data-multiplier="1.0">1080p 全高清</button>
+                           <button class="quality-btn" data-quality="1440p" data-multiplier="2.0">1440p 2K</button>
+                           <button class="quality-btn" data-quality="2160p" data-multiplier="4.5">2160p 4K</button>
+                       </div>
+                       <div class="slider-group">
+                           <div class="slider-label">
+                               <span>📅 使用天数</span>
+                               <span class="slider-value" id="daysValue">30天</span>
+                           </div>
+                           <input type="range" class="slider" id="days" min="1" max="365" value="30">
+                       </div>
+                       <div class="slider-group">
+                           <div class="slider-label">
+                               <span>🌍 网络环境质量</span>
+                               <span class="slider-value" id="networkQualityValue">良好</span>
+                           </div>
+                           <input type="range" class="slider" id="networkQuality" min="1" max="5" value="3">
+                       </div>
+                   </div>
+               </div>
+               <div class="right-panel">
+                   <div class="results-panel fade-in">
+                       <h2 style="font-size: 1.5em; margin-bottom: 20px; font-weight: 600;">📊 实时流量估算</h2>
+                       <div class="result-item">
+                           <div class="result-label">每日流量消耗</div>
+                           <div class="result-value" id="dailyResult">0 GB</div>
+                           <div class="result-detail">约 <span id="dailyMB">0</span> MB</div>
+                       </div>
+                       <div class="result-item">
+                           <div class="result-label">每月流量消耗</div>
+                           <div class="result-value" id="monthlyResult">0 GB</div>
+                           <div class="result-detail">预计费用：¥<span id="estimatedCost">0</span></div>
+                       </div>
+                       <div class="result-item">
+                           <div class="result-label">流量健康度</div>
+                           <div class="result-value" id="healthScore">优秀</div>
+                           <div class="result-detail">您的使用习惯很合理</div>
+                       </div>
+                   </div>
+                   <div class="card fade-in" style="margin-top: 20px;">
+                       <h3 style="margin-bottom: 15px; color: var(--dark);">📈 流量使用分析</h3>
+                       <div class="chart-container">
+                           <canvas id="usageChart"></canvas>
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+       <script>
+           const platformData = {
+               streaming: [
+                   { id: 'youtube', name: 'YouTube', icon: '📺', rate: 1500, category: 'video' },
+                   { id: 'netflix', name: 'Netflix', icon: '🎬', rate: 3000, category: 'video' },
+                   { id: 'disney', name: 'Disney+', icon: '🏰', rate: 2500, category: 'video' },
+                   { id: 'prime', name: 'Prime Video', icon: '📦', rate: 2200, category: 'video' },
+                   { id: 'hbo', name: 'HBO Max', icon: '🎭', rate: 2800, category: 'video' },
+                   { id: 'apple_tv', name: 'Apple TV+', icon: '🍎', rate: 2400, category: 'video' },
+                   { id: 'twitch', name: 'Twitch', icon: '🎮', rate: 2000, category: 'video' },
+                   { id: 'bilibili', name: 'Bilibili', icon: '🅱️', rate: 1200, category: 'video' },
+                   { id: 'tiktok', name: 'TikTok', icon: '🎵', rate: 800, category: 'video' },
+                   { id: 'instagram_reels', name: 'Instagram', icon: '📷', rate: 900, category: 'video' }
+               ],
+               social: [
+                   { id: 'whatsapp', name: 'WhatsApp', icon: '💬', rate: 50, category: 'social' },
+                   { id: 'wechat', name: '微信', icon: '💚', rate: 80, category: 'social' },
+                   { id: 'telegram', name: 'Telegram', icon: '✈️', rate: 60, category: 'social' },
+                   { id: 'discord', name: 'Discord', icon: '🎙️', rate: 100, category: 'social' },
+                   { id: 'facebook', name: 'Facebook', icon: '👥', rate: 300, category: 'social' },
+                   { id: 'twitter', name: 'Twitter/X', icon: '🐦', rate: 250, category: 'social' },
+                   { id: 'linkedin', name: 'LinkedIn', icon: '💼', rate: 150, category: 'social' },
+                   { id: 'reddit', name: 'Reddit', icon: '🤖', rate: 200, category: 'social' },
+                   { id: 'snapchat', name: 'Snapchat', icon: '👻', rate: 400, category: 'social' }
+               ],
+               work: [
+                   { id: 'zoom', name: 'Zoom', icon: '📹', rate: 600, category: 'work' },
+                   { id: 'teams', name: 'Teams', icon: '👔', rate: 550, category: 'work' },
+                   { id: 'slack', name: 'Slack', icon: '💌', rate: 100, category: 'work' },
+                   { id: 'google_drive', name: 'Google Drive', icon: '📁', rate: 200, category: 'work' },
+                   { id: 'dropbox', name: 'Dropbox', icon: '📦', rate: 180, category: 'work' },
+                   { id: 'notion', name: 'Notion', icon: '📝', rate: 150, category: 'work' },
+                   { id: 'github', name: 'GitHub', icon: '🐱', rate: 120, category: 'work' },
+                   { id: 'email', name: '邮件', icon: '📧', rate: 50, category: 'work' },
+                   { id: 'academic', name: '学术资源', icon: '📚', rate: 200, category: 'work' }
+               ],
+               other: [
+                   { id: 'spotify', name: 'Spotify', icon: '🎶', rate: 150, category: 'other' },
+                   { id: 'apple_music', name: 'Apple Music', icon: '🎵', rate: 140, category: 'other' },
+                   { id: 'gaming', name: '在线游戏', icon: '🎮', rate: 100, category: 'other' },
+                   { id: 'maps', name: '地图导航', icon: '🗺️', rate: 80, category: 'other' },
+                   { id: 'news', name: '新闻阅读', icon: '📰', rate: 150, category: 'other' },
+                   { id: 'shopping', name: '购物应用', icon: '🛍️', rate: 200, category: 'other' },
+                   { id: 'banking', name: '银行金融', icon: '💳', rate: 30, category: 'other' },
+                   { id: 'fitness', name: '健身应用', icon: '💪', rate: 100, category: 'other' },
+                   { id: 'food', name: '外卖美食', icon: '🍔', rate: 120, category: 'other' },
+                   { id: 'uber', name: 'Uber/滴滴', icon: '🚗', rate: 50, category: 'other' }
+               ]
+           };
+   
+           let selectedPlatforms = new Set();
+           let qualityMultiplier = 1.0;
+           let usageChart = null;
+   
+           document.addEventListener('DOMContentLoaded', function() {
+               initializePlatforms();
+               initializeSliders();
+               initializeQualityButtons();
+               initializeChart();
+               calculateUsage();
+           });
+   
+           function initializePlatforms() {
+               renderPlatformGrid('streamingPlatforms', platformData.streaming);
+               renderPlatformGrid('socialPlatforms', platformData.social);
+               renderPlatformGrid('workPlatforms', platformData.work);
+               renderPlatformGrid('otherPlatforms', platformData.other);
+           }
+   
+           function renderPlatformGrid(containerId, platforms) {
+               const container = document.getElementById(containerId);
+               container.innerHTML = platforms.map(platform => `
+                   <div class="platform-item" data-id="${platform.id}" data-rate="${platform.rate}" data-category="${platform.category}" onclick="togglePlatform('${platform.id}')">
+                       <span class="platform-icon">${platform.icon}</span>
+                       <div class="platform-name">${platform.name}</div>
+                       <div class="platform-data">${formatDataRate(platform.rate)}</div>
+                   </div>
+               `).join('');
+           }
+   
+           function formatDataRate(rate) {
+               if (rate >= 1000) {
+                   return `~${(rate / 1000).toFixed(1)}GB/小时`;
+               }
+               return `~${rate}MB/小时`;
+           }
+   
+           function togglePlatform(platformId) {
+               const element = document.querySelector(`[data-id="${platformId}"]`);
+               if (selectedPlatforms.has(platformId)) {
+                   selectedPlatforms.delete(platformId);
+                   element.classList.remove('selected');
+               } else {
+                   selectedPlatforms.add(platformId);
+                   element.classList.add('selected');
+               }
+               calculateUsage();
+           }
+   
+           function selectAllPlatforms() {
+               const allPlatforms = document.querySelectorAll('.platform-item');
+               const allSelected = selectedPlatforms.size === allPlatforms.length;
+               
+               allPlatforms.forEach(platform => {
+                   const id = platform.dataset.id;
+                   if (allSelected) {
+                       selectedPlatforms.delete(id);
+                       platform.classList.remove('selected');
+                   } else {
+                       selectedPlatforms.add(id);
+                       platform.classList.add('selected');
+                   }
+               });
+               calculateUsage();
+           }
+   
+           function initializeSliders() {
+               const sliders = [
+                   { id: 'videoHours', label: 'videoHoursValue', suffix: '小时/天' },
+                   { id: 'socialHours', label: 'socialHoursValue', suffix: '小时/天' },
+                   { id: 'workHours', label: 'workHoursValue', suffix: '小时/天' },
+                   { id: 'gameHours', label: 'gameHoursValue', suffix: '小时/天' },
+                   { id: 'days', label: 'daysValue', suffix: '天' }
+               ];
+   
+               sliders.forEach(slider => {
+                   const element = document.getElementById(slider.id);
+                   const label = document.getElementById(slider.label);
+                   
+                   element.addEventListener('input', function() {
+                       label.textContent = `${this.value}${slider.suffix}`;
+                       calculateUsage();
+                   });
+               });
+   
+               const networkQuality = document.getElementById('networkQuality');
+               const networkQualityValue = document.getElementById('networkQualityValue');
+               const qualityLabels = ['极差', '较差', '一般', '良好', '极佳'];
+               
+               networkQuality.addEventListener('input', function() {
+                   networkQualityValue.textContent = qualityLabels[this.value - 1];
+                   calculateUsage();
+               });
+           }
+   
+           function initializeQualityButtons() {
+               document.querySelectorAll('.quality-btn').forEach(btn => {
+                   btn.addEventListener('click', function() {
+                       if (this.dataset.quality) {
+                           document.querySelectorAll('.quality-btn[data-quality]').forEach(b => b.classList.remove('active'));
+                           this.classList.add('active');
+                           qualityMultiplier = parseFloat(this.dataset.multiplier);
+                           calculateUsage();
+                       }
+                   });
+               });
+           }
+   
+           function initializeChart() {
+               const ctx = document.getElementById('usageChart').getContext('2d');
+               usageChart = new Chart(ctx, {
+                   type: 'doughnut',
+                   data: {
+                       labels: [],
+                       datasets: [{
+                           data: [],
+                           backgroundColor: ['#6366f1', '#ec4899', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6'],
+                           borderWidth: 0
+                       }]
+                   },
+                   options: {
+                       responsive: true,
+                       maintainAspectRatio: false,
+                       plugins: {
+                           legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } },
+                           tooltip: {
+                               callbacks: {
+                                   label: function(context) {
+                                       const label = context.label || '';
+                                       const value = context.parsed || 0;
+                                       const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                       const percentage = ((value / total) * 100).toFixed(1);
+                                       return `${label}: ${value.toFixed(2)}GB (${percentage}%)`;
+                                   }
+                               }
+                           }
+                       }
+                   }
+               });
+           }
+   
+           function calculateUsage() {
+               if (selectedPlatforms.size === 0) {
+                   resetResults();
+                   return;
+               }
+   
+               const videoHours = parseFloat(document.getElementById('videoHours').value);
+               const socialHours = parseFloat(document.getElementById('socialHours').value);
+               const workHours = parseFloat(document.getElementById('workHours').value);
+               const gameHours = parseFloat(document.getElementById('gameHours').value);
+               const days = parseInt(document.getElementById('days').value);
+               const networkQuality = parseInt(document.getElementById('networkQuality').value);
+   
+               const networkMultipliers = [1.3, 1.15, 1.0, 0.9, 0.8];
+               const networkMultiplier = networkMultipliers[networkQuality - 1];
+   
+               const categoryUsage = { video: 0, social: 0, work: 0, other: 0 };
+   
+               selectedPlatforms.forEach(platformId => {
+                   const platform = findPlatform(platformId);
+                   if (!platform) return;
+   
+                   let hours = 0;
+                   switch (platform.category) {
+                       case 'video': hours = videoHours / countPlatformsByCategory('video'); break;
+                       case 'social': hours = socialHours / countPlatformsByCategory('social'); break;
+                       case 'work': hours = workHours / countPlatformsByCategory('work'); break;
+                       case 'other': hours = gameHours / countPlatformsByCategory('other'); break;
+                   }
+   
+                   let rate = platform.rate;
+                   if (platform.category === 'video') {
+                       rate *= qualityMultiplier;
+                   }
+   
+                   const dailyUsage = (rate * hours * networkMultiplier) / 1024; // GB
+                   categoryUsage[platform.category] += dailyUsage;
+               });
+   
+               const dailyTotal = Object.values(categoryUsage).reduce((a, b) => a + b, 0);
+               const monthlyTotal = dailyTotal * 30;
+               
+               updateResults(dailyTotal, monthlyTotal);
+               updateChart(categoryUsage);
+           }
+   
+           function findPlatform(platformId) {
+               for (const category of Object.values(platformData)) {
+                   const platform = category.find(p => p.id === platformId);
+                   if (platform) return platform;
+               }
+               return null;
+           }
+   
+           function countPlatformsByCategory(category) {
+               let count = 0;
+               selectedPlatforms.forEach(platformId => {
+                   const platform = findPlatform(platformId);
+                   if (platform && platform.category === category) count++;
+               });
+               return count || 1;
+           }
+   
+           function updateResults(daily, monthly) {
+               document.getElementById('dailyResult').textContent = daily.toFixed(2) + ' GB';
+               document.getElementById('dailyMB').textContent = (daily * 1024).toFixed(0);
+               document.getElementById('monthlyResult').textContent = monthly.toFixed(0) + ' GB';
+               
+               const costPerGB = 5;
+               const estimatedCost = monthly * costPerGB;
+               document.getElementById('estimatedCost').textContent = estimatedCost.toFixed(0);
+   
+               let healthScore, healthText;
+               if (monthly < 30) { healthScore = '优秀'; healthText = '您的使用习惯很合理'; }
+               else if (monthly < 60) { healthScore = '良好'; healthText = '使用量适中，继续保持'; }
+               else if (monthly < 100) { healthScore = '一般'; healthText = '建议适当控制视频时长'; }
+               else { healthScore = '较高'; healthText = '流量消耗较大，需要注意'; }
+               document.getElementById('healthScore').textContent = healthScore;
+               document.getElementById('healthScore').nextElementSibling.textContent = healthText;
+           }
+   
+           function updateChart(categoryUsage) {
+               const labels = [];
+               const data = [];
+               const categories = { video: '视频流媒体', social: '社交通讯', work: '工作学习', other: '其他应用' };
+   
+               for (const [key, value] of Object.entries(categoryUsage)) {
+                   if (value > 0) {
+                       labels.push(categories[key]);
+                       data.push(value);
+                   }
+               }
+   
+               usageChart.data.labels = labels;
+               usageChart.data.datasets[0].data = data;
+               usageChart.update();
+           }
+   
+           function resetResults() {
+               document.getElementById('dailyResult').textContent = '0 GB';
+               document.getElementById('dailyMB').textContent = '0';
+               document.getElementById('monthlyResult').textContent = '0 GB';
+               document.getElementById('estimatedCost').textContent = '0';
+               
+               usageChart.data.labels = [];
+               usageChart.data.datasets[0].data = [];
+               usageChart.update();
+           }
+   
+           function applyTemplate(template) {
+               selectedPlatforms.clear();
+               document.querySelectorAll('.platform-item').forEach(p => p.classList.remove('selected'));
+   
+               const templates = {
+                   student: { platforms: ['youtube', 'wechat', 'academic', 'google_drive', 'email', 'spotify'], hours: { video: 2, social: 1.5, work: 5, game: 0.5 }, quality: '720p' },
+                   business: { platforms: ['zoom', 'teams', 'email', 'linkedin', 'dropbox', 'whatsapp'], hours: { video: 0.5, social: 1, work: 8, game: 0 }, quality: '1080p' },
+                   travel: { platforms: ['instagram_reels', 'maps', 'uber', 'facebook', 'youtube', 'food'], hours: { video: 3, social: 2, work: 0.5, game: 1 }, quality: '1080p' },
+                   entertainment: { platforms: ['netflix', 'youtube', 'twitch', 'spotify', 'gaming', 'tiktok'], hours: { video: 5, social: 1, work: 0, game: 3 }, quality: '1440p' }
+               };
+   
+               const config = templates[template];
+               
+               config.platforms.forEach(platformId => {
+                   const element = document.querySelector(`[data-id="${platformId}"]`);
+                   if (element) {
+                       selectedPlatforms.add(platformId);
+                       element.classList.add('selected');
+                   }
+               });
+   
+               document.getElementById('videoHours').value = config.hours.video;
+               document.getElementById('videoHoursValue').textContent = config.hours.video + '小时/天';
+               document.getElementById('socialHours').value = config.hours.social;
+               document.getElementById('socialHoursValue').textContent = config.hours.social + '小时/天';
+               document.getElementById('workHours').value = config.hours.work;
+               document.getElementById('workHoursValue').textContent = config.hours.work + '小时/天';
+               document.getElementById('gameHours').value = config.hours.game;
+               document.getElementById('gameHoursValue').textContent = config.hours.game + '小时/天';
+   
+               document.querySelectorAll('.quality-btn[data-quality]').forEach(btn => {
+                   btn.classList.remove('active');
+                   if (btn.dataset.quality === config.quality) {
+                       btn.classList.add('active');
+                       qualityMultiplier = parseFloat(btn.dataset.multiplier);
+                   }
+               });
+   
+               document.getElementById('loading').style.display = 'block';
+               
+               setTimeout(() => {
+                   calculateUsage();
+                   document.getElementById('loading').style.display = 'none';
+                   document.querySelector('.results-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+               }, 500);
+           }
+   
+           const observer = new IntersectionObserver((entries) => {
+               entries.forEach(entry => {
+                   if (entry.isIntersecting) {
+                       entry.target.classList.add('fade-in');
+                   }
+               });
+           }, { threshold: 0.1 });
+   
+           document.querySelectorAll('.card').forEach(card => {
+               observer.observe(card);
+           });
+       </script>
+   </body>
+   </html>

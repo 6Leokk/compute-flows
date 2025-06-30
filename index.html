@@ -1,0 +1,1427 @@
+   <!DOCTYPE html>
+   <html lang="zh-CN">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>智能流量套餐分析器 Pro</title>
+       <style>
+           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+           
+           :root {
+               --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+               --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+               --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+               --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+               --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+               --card-bg: rgba(255, 255, 255, 0.95);
+               --glass-bg: rgba(255, 255, 255, 0.1);
+               --text-primary: #2d3748;
+               --text-secondary: #718096;
+               --border-color: rgba(255, 255, 255, 0.2);
+               --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.1);
+               --shadow-medium: 0 20px 60px rgba(0, 0, 0, 0.15);
+               --shadow-strong: 0 30px 80px rgba(0, 0, 0, 0.2);
+           }
+   
+           * {
+               margin: 0;
+               padding: 0;
+               box-sizing: border-box;
+           }
+   
+           body {
+               font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+               background: var(--bg-gradient);
+               min-height: 100vh;
+               line-height: 1.6;
+               color: var(--text-primary);
+               overflow-x: hidden;
+           }
+   
+           .animated-bg {
+               position: fixed;
+               top: 0;
+               left: 0;
+               width: 100%;
+               height: 100%;
+               z-index: -1;
+               background: var(--bg-gradient);
+           }
+   
+           .animated-bg::before {
+               content: '';
+               position: absolute;
+               top: 0;
+               left: 0;
+               width: 100%;
+               height: 100%;
+               background: 
+                   radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                   radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                   radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+               animation: float 20s ease-in-out infinite;
+           }
+   
+           @keyframes float {
+               0%, 100% { transform: translateY(0px) rotate(0deg); }
+               33% { transform: translateY(-30px) rotate(1deg); }
+               66% { transform: translateY(-20px) rotate(-1deg); }
+           }
+   
+           .container {
+               max-width: 1200px;
+               margin: 0 auto;
+               padding: 2rem;
+               position: relative;
+           }
+   
+           .header {
+               text-align: center;
+               margin-bottom: 3rem;
+               padding: 2rem 0;
+           }
+   
+           .header h1 {
+               font-size: 3.5rem;
+               font-weight: 700;
+               background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+               -webkit-background-clip: text;
+               -webkit-text-fill-color: transparent;
+               background-clip: text;
+               margin-bottom: 1rem;
+               text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+           }
+   
+           .header p {
+               font-size: 1.2rem;
+               color: rgba(255, 255, 255, 0.9);
+               font-weight: 300;
+           }
+   
+           .glass-card {
+               background: var(--card-bg);
+               backdrop-filter: blur(20px);
+               border-radius: 24px;
+               padding: 2.5rem;
+               margin-bottom: 2rem;
+               box-shadow: var(--shadow-medium);
+               border: 1px solid rgba(255, 255, 255, 0.2);
+               transition: all 0.3s ease;
+               position: relative;
+               overflow: hidden;
+           }
+   
+           .glass-card::before {
+               content: '';
+               position: absolute;
+               top: 0;
+               left: 0;
+               right: 0;
+               height: 1px;
+               background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+           }
+   
+           .glass-card:hover {
+               transform: translateY(-5px);
+               box-shadow: var(--shadow-strong);
+           }
+   
+           .section-title {
+               font-size: 1.8rem;
+               font-weight: 600;
+               margin-bottom: 1.5rem;
+               background: var(--primary-gradient);
+               -webkit-background-clip: text;
+               -webkit-text-fill-color: transparent;
+               background-clip: text;
+               display: flex;
+               align-items: center;
+               gap: 0.5rem;
+           }
+   
+           .section-title::before {
+               content: '';
+               width: 4px;
+               height: 1.5rem;
+               background: var(--primary-gradient);
+               border-radius: 2px;
+           }
+   
+           .form-grid {
+               display: grid;
+               grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+               gap: 1.5rem;
+               margin-bottom: 2rem;
+           }
+   
+           .form-group {
+               position: relative;
+           }
+   
+           .form-group label {
+               display: block;
+               font-weight: 500;
+               margin-bottom: 0.5rem;
+               color: var(--text-primary);
+               font-size: 0.9rem;
+               text-transform: uppercase;
+               letter-spacing: 0.5px;
+           }
+   
+           .form-input, .form-select {
+               width: 100%;
+               padding: 1rem 1.5rem;
+               border: 2px solid rgba(0,0,0,0.1);
+               border-radius: 16px;
+               font-size: 1rem;
+               background: rgba(255, 255, 255, 0.9);
+               transition: all 0.3s ease;
+               outline: none;
+           }
+   
+           .form-input:focus, .form-select:focus {
+               border-color: #667eea;
+               box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+               transform: translateY(-2px);
+           }
+   
+           .btn {
+               padding: 1rem 2rem;
+               border: none;
+               border-radius: 16px;
+               font-size: 1rem;
+               font-weight: 600;
+               cursor: pointer;
+               transition: all 0.3s ease;
+               position: relative;
+               overflow: hidden;
+               text-transform: uppercase;
+               letter-spacing: 0.5px;
+               display: inline-flex;
+               align-items: center;
+               gap: 0.5rem;
+           }
+   
+           .btn::before {
+               content: '';
+               position: absolute;
+               top: 0;
+               left: -100%;
+               width: 100%;
+               height: 100%;
+               background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+               transition: left 0.6s ease;
+           }
+   
+           .btn:hover::before {
+               left: 100%;
+           }
+   
+           .btn-primary {
+               background: var(--primary-gradient);
+               color: white;
+               box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+           }
+   
+           .btn-primary:hover {
+               transform: translateY(-3px);
+               box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+           }
+   
+           .btn-secondary {
+               background: var(--secondary-gradient);
+               color: white;
+               box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+           }
+   
+           .btn-success {
+               background: var(--success-gradient);
+               color: white;
+               box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+           }
+   
+           .btn-warning {
+               background: var(--warning-gradient);
+               color: white;
+               box-shadow: 0 10px 30px rgba(250, 112, 154, 0.3);
+           }
+   
+           .btn-large {
+               padding: 1.5rem 3rem;
+               font-size: 1.2rem;
+               border-radius: 20px;
+               width: 100%;
+               justify-content: center;
+           }
+   
+           .button-group {
+               display: flex;
+               gap: 1rem;
+               flex-wrap: wrap;
+               align-items: center;
+           }
+   
+           .plan-list {
+               display: grid;
+               gap: 1rem;
+           }
+   
+           .plan-item {
+               background: rgba(255, 255, 255, 0.8);
+               border-radius: 16px;
+               padding: 1.5rem;
+               display: flex;
+               align-items: center;
+               gap: 1rem;
+               transition: all 0.3s ease;
+               border: 2px solid transparent;
+               position: relative;
+           }
+   
+           .plan-item:hover {
+               transform: translateX(10px);
+               background: rgba(255, 255, 255, 0.95);
+               border-color: rgba(102, 126, 234, 0.3);
+               box-shadow: var(--shadow-soft);
+           }
+   
+           .plan-item.selected {
+               border-color: #667eea;
+               background: rgba(102, 126, 234, 0.1);
+           }
+   
+           .plan-type-badge {
+               padding: 0.5rem 1rem;
+               border-radius: 12px;
+               font-size: 0.8rem;
+               font-weight: 600;
+               text-transform: uppercase;
+               letter-spacing: 0.5px;
+           }
+   
+           .badge-monthly {
+               background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+               color: white;
+           }
+   
+           .badge-annual {
+               background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+               color: white;
+           }
+   
+           .badge-unlimited {
+               background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+               color: #2d3748;
+           }
+   
+           .results-table {
+               width: 100%;
+               border-collapse: collapse;
+               border-radius: 16px;
+               overflow: hidden;
+               box-shadow: var(--shadow-soft);
+               background: white;
+           }
+   
+           .results-table th {
+               background: var(--primary-gradient);
+               color: white;
+               padding: 1.5rem 1rem;
+               font-weight: 600;
+               text-align: left;
+               text-transform: uppercase;
+               letter-spacing: 0.5px;
+               font-size: 0.9rem;
+           }
+   
+           .results-table td {
+               padding: 1.5rem 1rem;
+               border-bottom: 1px solid rgba(0,0,0,0.05);
+               transition: all 0.3s ease;
+           }
+   
+           .results-table tr:hover td {
+               background: rgba(102, 126, 234, 0.05);
+           }
+   
+           .results-table tr.highlight td {
+               background: rgba(102, 126, 234, 0.1);
+               border-left: 4px solid #667eea;
+           }
+   
+           .cost-display {
+               font-size: 1.2rem;
+               font-weight: 600;
+               color: #667eea;
+           }
+   
+           .loading-spinner {
+               display: inline-block;
+               width: 40px;
+               height: 40px;
+               border: 4px solid rgba(102, 126, 234, 0.1);
+               border-left: 4px solid #667eea;
+               border-radius: 50%;
+               animation: spin 1s linear infinite;
+               margin: 2rem auto;
+           }
+   
+           @keyframes spin {
+               0% { transform: rotate(0deg); }
+               100% { transform: rotate(360deg); }
+           }
+   
+           .statistics-grid {
+               display: grid;
+               grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+               gap: 1.5rem;
+               margin: 2rem 0;
+           }
+   
+           .stat-card {
+               background: rgba(255, 255, 255, 0.9);
+               border-radius: 16px;
+               padding: 1.5rem;
+               text-align: center;
+               transition: all 0.3s ease;
+           }
+   
+           .stat-card:hover {
+               transform: translateY(-5px);
+               box-shadow: var(--shadow-soft);
+           }
+   
+           .stat-value {
+               font-size: 2rem;
+               font-weight: 700;
+               background: var(--primary-gradient);
+               -webkit-background-clip: text;
+               -webkit-text-fill-color: transparent;
+               background-clip: text;
+           }
+   
+           .stat-label {
+               font-size: 0.9rem;
+               color: var(--text-secondary);
+               text-transform: uppercase;
+               letter-spacing: 0.5px;
+           }
+   
+           .recommendation-card {
+               background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+               border: 2px solid rgba(102, 126, 234, 0.2);
+               border-radius: 20px;
+               padding: 2rem;
+               margin: 1.5rem 0;
+               position: relative;
+           }
+   
+           .recommendation-card::before {
+               content: '💡';
+               position: absolute;
+               top: -10px;
+               left: 20px;
+               background: white;
+               padding: 0.5rem;
+               border-radius: 50%;
+               font-size: 1.5rem;
+           }
+   
+           .empty-state {
+               text-align: center;
+               padding: 3rem;
+               color: var(--text-secondary);
+           }
+   
+           .empty-state-icon {
+               font-size: 4rem;
+               margin-bottom: 1rem;
+               opacity: 0.5;
+           }
+   
+           .toast {
+               position: fixed;
+               top: 20px;
+               right: 20px;
+               background: var(--success-gradient);
+               color: white;
+               padding: 1rem 2rem;
+               border-radius: 12px;
+               box-shadow: var(--shadow-medium);
+               transform: translateX(100%);
+               transition: transform 0.3s ease;
+               z-index: 1000;
+           }
+   
+           .toast.show {
+               transform: translateX(0);
+           }
+   
+           .modal {
+               position: fixed;
+               top: 0;
+               left: 0;
+               width: 100%;
+               height: 100%;
+               background: rgba(0, 0, 0, 0.5);
+               backdrop-filter: blur(10px);
+               display: flex;
+               align-items: center;
+               justify-content: center;
+               z-index: 1000;
+               opacity: 0;
+               visibility: hidden;
+               transition: all 0.3s ease;
+           }
+   
+           .modal.show {
+               opacity: 1;
+               visibility: visible;
+           }
+   
+           .modal-content {
+               background: white;
+               border-radius: 24px;
+               padding: 2rem;
+               max-width: 500px;
+               width: 90%;
+               max-height: 80vh;
+               overflow-y: auto;
+               transform: scale(0.9);
+               transition: transform 0.3s ease;
+           }
+   
+           .modal.show .modal-content {
+               transform: scale(1);
+           }
+   
+           @media (max-width: 768px) {
+               .container {
+                   padding: 1rem;
+               }
+               
+               .header h1 {
+                   font-size: 2.5rem;
+               }
+               
+               .form-grid {
+                   grid-template-columns: 1fr;
+               }
+               
+               .button-group {
+                   justify-content: center;
+               }
+               
+               .btn {
+                   min-width: 120px;
+               }
+           }
+   
+           .usage-scenarios {
+               display: grid;
+               grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+               gap: 1rem;
+               margin: 1.5rem 0;
+           }
+   
+           .scenario-card {
+               background: rgba(255, 255, 255, 0.9);
+               border-radius: 16px;
+               padding: 1.5rem;
+               cursor: pointer;
+               transition: all 0.3s ease;
+               border: 2px solid transparent;
+           }
+   
+           .scenario-card:hover {
+               transform: translateY(-3px);
+               border-color: rgba(102, 126, 234, 0.3);
+               box-shadow: var(--shadow-soft);
+           }
+   
+           .scenario-card.active {
+               border-color: #667eea;
+               background: rgba(102, 126, 234, 0.1);
+           }
+   
+           .scenario-title {
+               font-weight: 600;
+               margin-bottom: 0.5rem;
+               color: var(--text-primary);
+           }
+   
+           .scenario-usage {
+               font-size: 0.9rem;
+               color: var(--text-secondary);
+           }
+           .nav-button {
+               display: inline-block;
+               padding: 15px 30px;
+               font-size: 1.2rem;
+               font-weight: 700;
+               color: white;
+               text-align: center;
+               text-decoration: none;
+               background: linear-gradient(45deg, #f093fb, #f5576c, #fa709a, #fee140);
+               background-size: 400% 400%;
+               border: none;
+               border-radius: 50px;
+               box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.2);
+               cursor: pointer;
+               transition: all 0.4s ease-in-out;
+               animation: gradient-animation 10s ease infinite, pulse 2s infinite;
+               position: relative;
+               z-index: 10;
+               margin-top: 20px;
+           }
+   
+           @keyframes gradient-animation {
+               0% { background-position: 0% 50%; }
+               50% { background-position: 100% 50%; }
+               100% { background-position: 0% 50%; }
+           }
+   
+           @keyframes pulse {
+               0% {
+                   transform: scale(1);
+                   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.2);
+               }
+               50% {
+                   transform: scale(1.05);
+                   box-shadow: 0 15px 30px rgba(247, 148, 200, 0.4), 0 10px 10px rgba(247, 148, 200, 0.3);
+               }
+               100% {
+                   transform: scale(1);
+                   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.2);
+               }
+           }
+   
+           .nav-button:hover {
+               transform: translateY(-5px) scale(1.1);
+               box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+           }
+       </style>
+   </head>
+   <body>
+       <div class="animated-bg"></div>
+       
+       <div class="container">
+           <div class="header">
+               <h1>智能流量套餐分析器 Pro</h1>
+               <p>基于AI算法的个性化套餐优化方案</p>
+               <a href="calculator.html" class="nav-button">前往海外流量估算器</a>
+           </div>
+   
+           <!-- 快速场景选择 -->
+           <div class="glass-card">
+               <h2 class="section-title">📱 快速场景分析</h2>
+               <div class="usage-scenarios">
+                   <div class="scenario-card" data-usage="30">
+                       <div class="scenario-title">轻度用户</div>
+                       <div class="scenario-usage">约30GB/月 - 基础上网、聊天</div>
+                   </div>
+                   <div class="scenario-card" data-usage="80">
+                       <div class="scenario-title">中度用户</div>
+                       <div class="scenario-usage">约80GB/月 - 视频、游戏</div>
+                   </div>
+                   <div class="scenario-card" data-usage="150">
+                       <div class="scenario-title">重度用户</div>
+                       <div class="scenario-usage">约150GB/月 - 直播、下载</div>
+                   </div>
+                   <div class="scenario-card" data-usage="300">
+                       <div class="scenario-title">超重度用户</div>
+                       <div class="scenario-usage">约300GB/月 - 4K视频、云游戏</div>
+                   </div>
+               </div>
+           </div>
+   
+           <!-- 套餐管理 -->
+           <div class="glass-card">
+               <h2 class="section-title">📋 智能套餐管理</h2>
+               
+               <div class="form-grid">
+                   <div class="form-group">
+                       <label for="plan-name">套餐名称</label>
+                       <input type="text" id="plan-name" class="form-input" placeholder="自动生成或自定义">
+                   </div>
+                   <div class="form-group">
+                       <label for="plan-price">价格（元）</label>
+                       <input type="number" id="plan-price" class="form-input" placeholder="99">
+                   </div>
+                   <div class="form-group">
+                       <label for="plan-data">流量（GB）</label>
+                       <input type="number" id="plan-data" class="form-input" placeholder="100">
+                   </div>
+                   <div class="form-group">
+                       <label for="plan-type">套餐类型</label>
+                       <select id="plan-type" class="form-select">
+                           <option value="monthly">月付套餐</option>
+                           <option value="annual">年付套餐</option>
+                           <option value="non-expiring">不限时流量包</option>
+                       </select>
+                   </div>
+                   <div class="form-group">
+                       <label for="discount-code">优惠折扣</label>
+                       <input type="number" id="discount-code" class="form-input" placeholder="8.5折输入8.5">
+                   </div>
+               </div>
+   
+               <div class="button-group">
+                   <button id="add-plan-btn" class="btn btn-primary">✨ 添加套餐</button>
+                   <button id="import-btn" class="btn btn-secondary">📥 导入数据</button>
+                   <button id="export-btn" class="btn btn-secondary">📤 导出数据</button>
+                   <button id="clear-data-btn" class="btn btn-warning">🗑️ 清空数据</button>
+               </div>
+               <input type="file" id="import-file-input" style="display: none;" accept=".json">
+           </div>
+   
+           <!-- 套餐列表 -->
+           <div class="glass-card">
+               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                   <h2 class="section-title">📊 套餐列表</h2>
+                   <button id="delete-selected-btn" class="btn btn-warning">删除选中</button>
+               </div>
+               
+               <div id="plan-list" class="plan-list">
+                   <div class="empty-state">
+                       <div class="empty-state-icon">📱</div>
+                       <p>暂无套餐数据，请添加套餐开始分析</p>
+                   </div>
+               </div>
+   
+               <!-- 统计信息 -->
+               <div id="statistics" class="statistics-grid" style="display: none;">
+                   <div class="stat-card">
+                       <div class="stat-value" id="total-plans">0</div>
+                       <div class="stat-label">总套餐数</div>
+                   </div>
+                   <div class="stat-card">
+                       <div class="stat-value" id="min-price">¥0</div>
+                       <div class="stat-label">最低价格</div>
+                   </div>
+                   <div class="stat-card">
+                       <div class="stat-value" id="max-data">0GB</div>
+                       <div class="stat-label">最大流量</div>
+                   </div>
+                   <div class="stat-card">
+                       <div class="stat-value" id="best-value">0</div>
+                       <div class="stat-label">最佳性价比</div>
+                   </div>
+               </div>
+           </div>
+   
+           <!-- 分析结果 -->
+           <div class="glass-card">
+               <h2 class="section-title">🤖 AI智能分析</h2>
+               <button id="calculate-ranges-btn" class="btn btn-success btn-large">
+                   <span id="calc-btn-text">🚀 开始智能分析</span>
+               </button>
+               
+               <div id="results-section" style="display: none;">
+                   <div id="loading-section" style="display: none; text-align: center; padding: 2rem;">
+                       <div class="loading-spinner"></div>
+                       <p>AI正在分析您的套餐组合...</p>
+                   </div>
+                   
+                   <div id="error-message"></div>
+                   <div id="range-table-container"></div>
+                   
+                   <!-- 智能推荐 -->
+                   <div id="recommendations" style="display: none;"></div>
+               </div>
+           </div>
+   
+           <!-- 特定查询 -->
+           <div id="specific-query-section" class="glass-card" style="display: none;">
+               <h2 class="section-title">🔍 精准查询</h2>
+               <div style="display: flex; gap: 1rem; align-items: end;">
+                   <div class="form-group" style="flex: 1;">
+                       <label for="specific-usage">月使用量（GB）</label>
+                       <input type="number" id="specific-usage" class="form-input" placeholder="150">
+                   </div>
+                   <button id="query-usage-btn" class="btn btn-primary">查询最优方案</button>
+               </div>
+               <div id="specific-query-result"></div>
+           </div>
+       </div>
+   
+       <!-- Toast 通知 -->
+       <div id="toast" class="toast"></div>
+   
+       <!-- 确认模态框 -->
+       <div id="confirm-modal" class="modal">
+           <div class="modal-content">
+               <h3 style="margin-bottom: 1rem;">确认操作</h3>
+               <p id="confirm-message"></p>
+               <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                   <button id="confirm-cancel" class="btn" style="background: #e2e8f0; color: #2d3748;">取消</button>
+                   <button id="confirm-ok" class="btn btn-primary">确认</button>
+               </div>
+           </div>
+       </div>
+   
+       <script>
+           document.addEventListener('DOMContentLoaded', () => {
+               let plans = [];
+               let calculatedRanges = [];
+               let defaultPlanCounter = 1;
+   
+               const STORAGE_KEY = 'smartDataPlanAnalyzer_v3';
+               
+               // DOM 元素
+               const elements = {
+                   addPlanBtn: document.getElementById('add-plan-btn'),
+                   clearDataBtn: document.getElementById('clear-data-btn'),
+                   calculateRangesBtn: document.getElementById('calculate-ranges-btn'),
+                   queryUsageBtn: document.getElementById('query-usage-btn'),
+                   planList: document.getElementById('plan-list'),
+                   discountInput: document.getElementById('discount-code'),
+                   exportBtn: document.getElementById('export-btn'),
+                   importBtn: document.getElementById('import-btn'),
+                   importFileInput: document.getElementById('import-file-input'),
+                   deleteSelectedBtn: document.getElementById('delete-selected-btn'),
+                   resultsSection: document.getElementById('results-section'),
+                   loadingSection: document.getElementById('loading-section'),
+                   rangeTableContainer: document.getElementById('range-table-container'),
+                   errorMessageDiv: document.getElementById('error-message'),
+                   specificQuerySection: document.getElementById('specific-query-section'),
+                   specificQueryResult: document.getElementById('specific-query-result'),
+                   toast: document.getElementById('toast'),
+                   confirmModal: document.getElementById('confirm-modal'),
+                   statistics: document.getElementById('statistics')
+               };
+   
+               // 工具函数
+               function showToast(message, type = 'success') {
+                   elements.toast.textContent = message;
+                   elements.toast.className = `toast show ${type}`;
+                   setTimeout(() => {
+                       elements.toast.classList.remove('show');
+                   }, 3000);
+               }
+   
+               function showConfirm(message) {
+                   return new Promise((resolve) => {
+                       document.getElementById('confirm-message').textContent = message;
+                       elements.confirmModal.classList.add('show');
+                       
+                       document.getElementById('confirm-ok').onclick = () => {
+                           elements.confirmModal.classList.remove('show');
+                           resolve(true);
+                       };
+                       
+                       document.getElementById('confirm-cancel').onclick = () => {
+                           elements.confirmModal.classList.remove('show');
+                           resolve(false);
+                       };
+                   });
+               }
+   
+               // 数据持久化
+               function saveToStorage() {
+                   const data = {
+                       plans: plans,
+                       discount: elements.discountInput.value,
+                       timestamp: Date.now()
+                   };
+                   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+               }
+   
+               function loadFromStorage() {
+                   try {
+                       const stored = localStorage.getItem(STORAGE_KEY);
+                       if (stored) {
+                           const data = JSON.parse(stored);
+                           plans = data.plans || [];
+                           elements.discountInput.value = data.discount || '';
+                       }
+                   } catch (e) {
+                       console.error('加载数据失败:', e);
+                       plans = [];
+                   }
+               }
+   
+               // 套餐管理
+               function addPlan(plan) {
+                   plans.push(plan);
+                   saveToStorage();
+                   renderPlanList();
+                   updateStatistics();
+                   showToast('套餐添加成功！');
+               }
+   
+               function removePlan(index) {
+                   plans.splice(index, 1);
+                   saveToStorage();
+                   renderPlanList();
+                   updateStatistics();
+                   showToast('套餐删除成功！');
+               }
+   
+               function renderPlanList() {
+                   if (plans.length === 0) {
+                       elements.planList.innerHTML = `
+                           <div class="empty-state">
+                               <div class="empty-state-icon">📱</div>
+                               <p>暂无套餐数据，请添加套餐开始分析</p>
+                           </div>
+                       `;
+                       elements.statistics.style.display = 'none';
+                       return;
+                   }
+   
+                   elements.statistics.style.display = 'grid';
+                   elements.planList.innerHTML = '';
+                   
+                   plans.forEach((plan, index) => {
+                       const typeInfo = {
+                           'monthly': { text: '月付', class: 'badge-monthly' },
+                           'annual': { text: '年付', class: 'badge-annual' },
+                           'non-expiring': { text: '不限时', class: 'badge-unlimited' }
+                       };
+                       
+                       const planElement = document.createElement('div');
+                       planElement.className = 'plan-item';
+                       planElement.innerHTML = `
+                           <input type="checkbox" class="plan-checkbox" data-index="${index}">
+                           <div style="flex: 1;">
+                               <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                                   <strong>${plan.name}</strong>
+                                   <span class="plan-type-badge ${typeInfo[plan.type].class}">
+                                       ${typeInfo[plan.type].text}
+                                   </span>
+                               </div>
+                               <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                                   💰 ¥${plan.price} / 📊 ${plan.data}GB / 📈 ¥${(plan.price/plan.data).toFixed(2)}/GB
+                               </div>
+                           </div>
+                           <button class="btn btn-warning" onclick="removePlan(${index})">删除</button>
+                       `;
+                       
+                       elements.planList.appendChild(planElement);
+                   });
+   
+                   updateButtonStates();
+               }
+   
+               function updateStatistics() {
+                   if (plans.length === 0) return;
+   
+                   const prices = plans.map(p => p.price);
+                   const dataAmounts = plans.map(p => p.data);
+                   const costPerGB = plans.map(p => p.price / p.data);
+   
+                   document.getElementById('total-plans').textContent = plans.length;
+                   document.getElementById('min-price').textContent = `¥${Math.min(...prices)}`;
+                   document.getElementById('max-data').textContent = `${Math.max(...dataAmounts)}GB`;
+                   document.getElementById('best-value').textContent = `¥${Math.min(...costPerGB).toFixed(2)}/GB`;
+               }
+   
+               function updateButtonStates() {
+                   const hasPlans = plans.length > 0;
+                   const hasSelection = document.querySelector('.plan-checkbox:checked') !== null;
+                   
+                   elements.exportBtn.disabled = !hasPlans;
+                   elements.deleteSelectedBtn.disabled = !hasSelection;
+                   elements.clearDataBtn.disabled = !hasPlans;
+                   elements.calculateRangesBtn.disabled = !hasPlans;
+               }
+   
+               // 智能分析算法（增强版）
+               function calculateOptimalPlan(usage, discountFactor) {
+                   const discountedPlans = plans.map(p => ({ ...p, price: p.price * discountFactor }));
+                   const monthlyPlans = discountedPlans.filter(p => p.type === 'monthly');
+                   const annualPlans = discountedPlans.filter(p => p.type === 'annual');
+                   const nonExpiringPlans = discountedPlans.filter(p => p.type === 'non-expiring')
+                       .sort((a, b) => (a.price / a.data) - (b.price / b.data));
+                   
+                   const bestNonExpiring = nonExpiringPlans[0];
+                   const results = [];
+   
+                   // 计算补充成本
+                   function getSupplementCost(needed) {
+                       if (needed <= 0) return { cost: 0, description: '' };
+                       if (!bestNonExpiring) return { cost: Infinity, description: '' };
+                       
+                       const numToBuy = Math.ceil(needed / bestNonExpiring.data);
+                       const cost = numToBuy * bestNonExpiring.price;
+                       const desc = numToBuy > 0 ? ` + ${numToBuy}×${bestNonExpiring.name}` : '';
+                       
+                       return { cost, description: desc };
+                   }
+   
+                   // 年付方案分析
+                   annualPlans.forEach(plan => {
+                       const monthlyData = plan.data / 12;
+                       const monthlyCost = plan.price / 12;
+                       const supplement = getSupplementCost(usage - monthlyData);
+                       
+                       if (supplement.cost !== Infinity) {
+                           results.push({
+                               description: `${plan.name}(年付)${supplement.description}`,
+                               cost: monthlyCost + supplement.cost,
+                               type: 'annual',
+                               risk: 'high',
+                               convenience: 'low'
+                           });
+                       }
+                   });
+   
+                   // 月付方案分析
+                   monthlyPlans.forEach(plan => {
+                       // 方案1: 月付 + 补充包
+                       const supplement = getSupplementCost(usage - plan.data);
+                       if (supplement.cost !== Infinity) {
+                           results.push({
+                               description: `${plan.name}${supplement.description}`,
+                               cost: plan.price + supplement.cost,
+                               type: 'monthly',
+                               risk: 'low',
+                               convenience: 'high'
+                           });
+                       }
+   
+                       // 方案2: 多次购买同一月付
+                       const numToBuy = Math.ceil(usage / plan.data);
+                       results.push({
+                           description: `${numToBuy}×${plan.name}`,
+                           cost: numToBuy * plan.price,
+                           type: 'monthly-multi',
+                           risk: 'low',
+                           convenience: 'medium'
+                       });
+                   });
+   
+                   // 纯不限时包方案
+                   if (bestNonExpiring) {
+                       const supplement = getSupplementCost(usage);
+                       results.push({
+                           description: supplement.description.replace(' + ', ''),
+                           cost: supplement.cost,
+                           type: 'non-expiring',
+                           risk: 'none',
+                           convenience: 'medium'
+                       });
+                   }
+   
+                   // 排序并返回最优方案
+                   return results.filter(r => r.cost !== Infinity)
+                       .sort((a, b) => {
+                           // 主要按成本排序，相同成本时考虑风险和便利性
+                           if (Math.abs(a.cost - b.cost) < 0.01) {
+                               const riskWeight = { 'none': 0, 'low': 1, 'medium': 2, 'high': 3 };
+                               const convWeight = { 'high': 0, 'medium': 1, 'low': 2 };
+                               return (riskWeight[a.risk] + convWeight[a.convenience]) - 
+                                      (riskWeight[b.risk] + convWeight[b.convenience]);
+                           }
+                           return a.cost - b.cost;
+                       })[0];
+               }
+   
+               function findOptimalRanges() {
+                   const discountFactor = getDiscountFactor();
+                   const criticalPoints = new Set([0.01]);
+                   const maxUsage = 2000;
+   
+                   // 生成关键点
+                   plans.forEach(plan => {
+                       const data = plan.type === 'annual' ? plan.data / 12 : plan.data;
+                       criticalPoints.add(data);
+                       criticalPoints.add(data + 0.01);
+                       
+                       // 为不限时包生成更多点
+                       if (plan.type === 'non-expiring') {
+                           for (let i = 1; i <= 10; i++) {
+                               const point = i * data;
+                               if (point <= maxUsage) {
+                                   criticalPoints.add(point);
+                                   criticalPoints.add(point + 0.01);
+                               }
+                           }
+                       }
+                   });
+   
+                   const sortedPoints = Array.from(criticalPoints)
+                       .filter(p => p > 0 && p <= maxUsage)
+                       .sort((a, b) => a - b);
+   
+                   const ranges = [];
+                   let lastPlan = null;
+   
+                   for (let i = 0; i < sortedPoints.length; i++) {
+                       const start = sortedPoints[i];
+                       const end = i + 1 < sortedPoints.length ? sortedPoints[i + 1] - 0.01 : maxUsage;
+                       
+                       if (start > end) continue;
+   
+                       const currentPlan = calculateOptimalPlan(start, discountFactor);
+                       if (!currentPlan) continue;
+   
+                       if (!lastPlan || lastPlan.description !== currentPlan.description) {
+                           ranges.push({
+                               start: start,
+                               end: end,
+                               plan: currentPlan
+                           });
+                           lastPlan = currentPlan;
+                       } else {
+                           ranges[ranges.length - 1].end = end;
+                       }
+                   }
+   
+                   return ranges;
+               }
+   
+               function renderResults(ranges) {
+                   if (ranges.length === 0) {
+                       elements.rangeTableContainer.innerHTML = `
+                           <div class="empty-state">
+                               <div class="empty-state-icon">❌</div>
+                               <p>无法生成有效的分析结果，请检查套餐配置</p>
+                           </div>
+                       `;
+                       return;
+                   }
+   
+                   const discountFactor = getDiscountFactor();
+                   const discountText = discountFactor < 1 ? ` (已应用${(discountFactor*10).toFixed(1)}折优惠)` : '';
+                   
+                   let html = `
+                       <div style="margin-bottom: 2rem;">
+                           <h3>🎯 最优方案区间${discountText}</h3>
+                           <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                               基于AI算法分析，为您推荐以下最具性价比的购买方案
+                           </p>
+                       </div>
+                       <table class="results-table">
+                           <thead>
+                               <tr>
+                                   <th>使用量区间 (GB/月)</th>
+                                   <th>推荐方案</th>
+                                   <th>月均成本</th>
+                                   <th>风险等级</th>
+                                   <th>便利性</th>
+                               </tr>
+                           </thead>
+                           <tbody>
+                   `;
+   
+                   ranges.forEach(range => {
+                       const start = range.start.toFixed(1).replace('.0', '');
+                       const end = typeof range.end === 'string' ? range.end : range.end.toFixed(1).replace('.0', '');
+                       const cost = range.plan.cost.toFixed(2);
+                       
+                       const riskBadges = {
+                           'none': '<span style="color: #22c55e;">✅ 无风险</span>',
+                           'low': '<span style="color: #eab308;">⚠️ 低风险</span>',
+                           'medium': '<span style="color: #f97316;">🔶 中风险</span>',
+                           'high': '<span style="color: #ef4444;">❌ 高风险</span>'
+                       };
+                       
+                       const convenienceBadges = {
+                           'high': '<span style="color: #22c55e;">🌟 便利</span>',
+                           'medium': '<span style="color: #eab308;">⭐ 一般</span>',
+                           'low': '<span style="color: #ef4444;">💧 不便</span>'
+                       };
+   
+                       html += `
+                           <tr data-start="${range.start}" data-end="${range.end}">
+                               <td><strong>${start} - ${end}</strong></td>
+                               <td>${range.plan.description}</td>
+                               <td><span class="cost-display">¥${cost}</span></td>
+                               <td>${riskBadges[range.plan.risk]}</td>
+                               <td>${convenienceBadges[range.plan.convenience]}</td>
+                           </tr>
+                       `;
+                   });
+   
+                   html += '</tbody></table>';
+                   elements.rangeTableContainer.innerHTML = html;
+   
+                   // 生成智能推荐
+                   generateRecommendations(ranges);
+               }
+   
+               function generateRecommendations(ranges) {
+                   const recommendations = document.getElementById('recommendations');
+                   
+                   if (ranges.length === 0) {
+                       recommendations.style.display = 'none';
+                       return;
+                   }
+   
+                   let html = `
+                       <div class="recommendation-card">
+                           <h4 style="margin-bottom: 1rem;">🤖 AI智能建议</h4>
+                   `;
+   
+                   // 分析不同使用量的推荐
+                   const lowUsage = ranges.find(r => r.start <= 50);
+                   const mediumUsage = ranges.find(r => r.start <= 100 && r.end >= 80);
+                   const highUsage = ranges.find(r => r.start <= 200 && r.end >= 150);
+   
+                   if (lowUsage) {
+                       html += `<p><strong>💡 轻度用户 (≤50GB):</strong> ${lowUsage.plan.description} - 成本效益最优</p>`;
+                   }
+                   
+                   if (mediumUsage) {
+                       html += `<p><strong>🎯 中度用户 (50-150GB):</strong> ${mediumUsage.plan.description} - 平衡选择</p>`;
+                   }
+                   
+                   if (highUsage) {
+                       html += `<p><strong>🚀 重度用户 (150GB+):</strong> ${highUsage.plan.description} - 大流量优选</p>`;
+                   }
+   
+                   // 风险提醒
+                   const hasHighRisk = ranges.some(r => r.plan.risk === 'high');
+                   if (hasHighRisk) {
+                       html += `<p style="color: var(--warning-color);"><strong>⚠️ 风险提醒:</strong> 年付套餐虽然便宜但存在长期承诺风险，请谨慎选择</p>`;
+                   }
+   
+                   html += '</div>';
+                   recommendations.innerHTML = html;
+                   recommendations.style.display = 'block';
+               }
+   
+               function getDiscountFactor() {
+                   const discount = parseFloat(elements.discountInput.value);
+                   return (isNaN(discount) || discount <= 0 || discount > 10) ? 1 : discount / 10;
+               }
+   
+               // 事件监听
+               elements.addPlanBtn.addEventListener('click', () => {
+                   let name = document.getElementById('plan-name').value.trim();
+                   const price = parseFloat(document.getElementById('plan-price').value);
+                   const data = parseFloat(document.getElementById('plan-data').value);
+                   const type = document.getElementById('plan-type').value;
+   
+                   if (!name) {
+                       const existingNames = plans.map(p => p.name);
+                       while (existingNames.includes(`套餐${defaultPlanCounter}`)) {
+                           defaultPlanCounter++;
+                       }
+                       name = `套餐${defaultPlanCounter}`;
+                       defaultPlanCounter++;
+                   }
+   
+                   if (!isNaN(price) && !isNaN(data) && price >= 0 && data > 0) {
+                       addPlan({ name, price, data, type });
+                       
+                       // 清空表单
+                       document.getElementById('plan-name').value = '';
+                       document.getElementById('plan-price').value = '';
+                       document.getElementById('plan-data').value = '';
+                   } else {
+                       showToast('请输入有效的价格和流量信息！', 'error');
+                   }
+               });
+   
+               elements.clearDataBtn.addEventListener('click', async () => {
+                   if (await showConfirm('确定要清除所有数据吗？此操作不可撤销。')) {
+                       localStorage.removeItem(STORAGE_KEY);
+                       plans = [];
+                       elements.discountInput.value = '';
+                       renderPlanList();
+                       updateStatistics();
+                       showToast('数据已清除');
+                   }
+               });
+   
+               elements.calculateRangesBtn.addEventListener('click', () => {
+                   if (plans.length === 0) {
+                       showToast('请先添加套餐数据！', 'error');
+                       return;
+                   }
+   
+                   saveToStorage();
+                   elements.resultsSection.style.display = 'block';
+                   elements.loadingSection.style.display = 'block';
+                   elements.rangeTableContainer.innerHTML = '';
+                   elements.errorMessageDiv.innerHTML = '';
+   
+                   // 模拟AI分析过程
+                   setTimeout(() => {
+                       try {
+                           calculatedRanges = findOptimalRanges();
+                           renderResults(calculatedRanges);
+                           elements.specificQuerySection.style.display = 'block';
+                           showToast('分析完成！');
+                       } catch (error) {
+                           console.error('分析出错:', error);
+                           elements.errorMessageDiv.innerHTML = `
+                               <div style="color: var(--warning-color); padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 12px;">
+                                   <strong>分析失败:</strong> ${error.message}
+                               </div>
+                           `;
+                       } finally {
+                           elements.loadingSection.style.display = 'none';
+                       }
+                   }, 1500);
+               });
+   
+               // 快速场景选择
+               document.querySelectorAll('.scenario-card').forEach(card => {
+                   card.addEventListener('click', () => {
+                       document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+                       card.classList.add('active');
+                       
+                       const usage = parseInt(card.dataset.usage);
+                       document.getElementById('specific-usage').value = usage;
+                       
+                       if (calculatedRanges.length > 0) {
+                           highlightUsageInTable(usage);
+                       }
+                   });
+               });
+   
+               // 特定查询
+               elements.queryUsageBtn.addEventListener('click', () => {
+                   const usage = parseFloat(document.getElementById('specific-usage').value);
+                   if (isNaN(usage) || usage <= 0) {
+                       showToast('请输入有效的使用量！', 'error');
+                       return;
+                   }
+                   
+                   highlightUsageInTable(usage);
+               });
+   
+               function highlightUsageInTable(usage) {
+                   // 清除之前的高亮
+                   document.querySelectorAll('.results-table tr').forEach(row => {
+                       row.classList.remove('highlight');
+                   });
+   
+                   // 查找匹配的行
+                   const rows = document.querySelectorAll('.results-table tbody tr');
+                   let foundRow = null;
+   
+                   rows.forEach(row => {
+                       const start = parseFloat(row.dataset.start);
+                       const end = row.dataset.end === '以上' ? Infinity : parseFloat(row.dataset.end);
+                       
+                       if (usage >= start && usage <= end) {
+                           row.classList.add('highlight');
+                           foundRow = row;
+                       }
+                   });
+   
+                   if (foundRow) {
+                       foundRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                       
+                       // 显示详细推荐
+                       const discountFactor = getDiscountFactor();
+                       const optimalPlan = calculateOptimalPlan(usage, discountFactor);
+                       
+                       if (optimalPlan) {
+                           elements.specificQueryResult.innerHTML = `
+                               <div class="recommendation-card">
+                                   <h4>🎯 ${usage}GB 专属推荐</h4>
+                                   <p><strong>最优方案:</strong> ${optimalPlan.description}</p>
+                                   <p><strong>月均成本:</strong> <span class="cost-display">¥${optimalPlan.cost.toFixed(2)}</span></p>
+                                   <p><strong>风险评估:</strong> ${optimalPlan.risk}</p>
+                                   <p><strong>使用便利性:</strong> ${optimalPlan.convenience}</p>
+                               </div>
+                           `;
+                           elements.specificQueryResult.style.display = 'block';
+                       }
+                   }
+               }
+   
+               // 数据导入导出
+               elements.exportBtn.addEventListener('click', () => {
+                   if (plans.length === 0) {
+                       showToast('没有数据可以导出！', 'error');
+                       return;
+                   }
+   
+                   const data = {
+                       plans: plans,
+                       discount: elements.discountInput.value,
+                       exportTime: new Date().toISOString(),
+                       version: '3.0'
+                   };
+   
+                   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                   const url = URL.createObjectURL(blob);
+                   const a = document.createElement('a');
+                   a.href = url;
+                   a.download = `data-plans-${new Date().toISOString().slice(0, 10)}.json`;
+                   document.body.appendChild(a);
+                   a.click();
+                   document.body.removeChild(a);
+                   URL.revokeObjectURL(url);
+                   
+                   showToast('数据导出成功！');
+               });
+   
+               elements.importBtn.addEventListener('click', () => {
+                   elements.importFileInput.click();
+               });
+   
+               elements.importFileInput.addEventListener('change', async (e) => {
+                   const file = e.target.files[0];
+                   if (!file) return;
+   
+                   try {
+                       const text = await file.text();
+                       const data = JSON.parse(text);
+                       
+                       if (!data.plans || !Array.isArray(data.plans)) {
+                           throw new Error('无效的数据格式');
+                       }
+   
+                       if (await showConfirm('导入将覆盖现有数据，确定继续吗？')) {
+                           plans = data.plans;
+                           elements.discountInput.value = data.discount || '';
+                           saveToStorage();
+                           renderPlanList();
+                           updateStatistics();
+                           showToast('数据导入成功！');
+                       }
+                   } catch (error) {
+                       showToast(`导入失败: ${error.message}`, 'error');
+                   }
+                   
+                   e.target.value = '';
+               });
+   
+               // 批量删除
+               elements.deleteSelectedBtn.addEventListener('click', async () => {
+                   const checked = document.querySelectorAll('.plan-checkbox:checked');
+                   if (checked.length === 0) {
+                       showToast('请先选择要删除的套餐！', 'error');
+                       return;
+                   }
+   
+                   if (await showConfirm(`确定删除选中的 ${checked.length} 个套餐吗？`)) {
+                       const indices = Array.from(checked).map(cb => parseInt(cb.dataset.index));
+                       indices.sort((a, b) => b - a).forEach(index => {
+                           plans.splice(index, 1);
+                       });
+                       
+                       saveToStorage();
+                       renderPlanList();
+                       updateStatistics();
+                       showToast(`已删除 ${indices.length} 个套餐`);
+                   }
+               });
+   
+               // 复选框状态监听
+               document.addEventListener('change', (e) => {
+                   if (e.target.classList.contains('plan-checkbox')) {
+                       updateButtonStates();
+                   }
+               });
+   
+               // 全局删除函数（供HTML调用）
+               window.removePlan = removePlan;
+   
+               // 初始化
+               loadFromStorage();
+               renderPlanList();
+               updateStatistics();
+               updateButtonStates();
+           });
+       </script>
+   </body>
+   </html>
