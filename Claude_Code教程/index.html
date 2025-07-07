@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code 安装与配置教程</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 0;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            margin: -40px auto 60px;
+            padding: 60px;
+            position: relative;
+        }
+
+        .nav-menu {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #667eea;
+        }
+
+        .nav-menu h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .nav-menu ul {
+            list-style: none;
+        }
+
+        .nav-menu ul li {
+            margin: 10px 0;
+        }
+
+        .nav-menu ul li a {
+            color: #555;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu ul li a:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .section {
+            margin-bottom: 50px;
+            scroll-margin-top: 100px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            position: relative;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.5rem;
+            margin: 30px 0 15px;
+        }
+
+        .section p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .code-block {
+            background: #2d3748;
+            border-radius: 12px;
+            margin: 25px 0;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .code-header {
+            background: #4a5568;
+            padding: 15px 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        pre {
+            margin: 0 !important;
+            padding: 25px !important;
+            background: #2d3748 !important;
+            border-radius: 0 !important;
+        }
+
+        code {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .inline-code {
+            background: #f1f5f9;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-family: 'SF Mono', Monaco, monospace;
+            color: #e53e3e;
+            font-size: 0.9em;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            border-left: 5px solid #f39c12;
+        }
+
+        .alert-title {
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .alert p {
+            color: #856404;
+            margin: 8px 0;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .step-container {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .link-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .link-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: white;
+            background: rgba(0,0,0,0.1);
+            margin-top: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .main-content {
+                padding: 30px 20px;
+                margin: -20px 20px 40px;
+            }
+            
+            .section h2 {
+                font-size: 1.8rem;
+            }
+            
+            .step-container {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .step-number {
+                margin-bottom: 15px;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Claude Code</h1>
+            <p class="subtitle">智能编程助手安装与配置完全指南</p>
+        </header>
+
+        <main class="main-content">
+            <nav class="nav-menu">
+                <h3>📋 教程目录</h3>
+                <ul>
+                    <li><a href="#install-nodejs">1. 安装 Node.js 和 npm</a></li>
+                    <li><a href="#install-claude">2. 安装 Claude Code CLI</a></li>
+                    <li><a href="#config-settings">3. 配置 Settings 文件</a></li>
+                    <li><a href="#get-api-key">4. 获取 API Key</a></li>
+                    <li><a href="#project-config">5. 项目配置（可选）</a></li>
+                    <li><a href="#start-using">6. 开始使用</a></li>
+                    <li><a href="#env-vars">附录：环境变量说明</a></li>
+                    <li><a href="#register">注册与获取Key</a></li>
+                </ul>
+            </nav>
+
+            <section id="install-nodejs" class="section">
+                <div class="step-container">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h2>安装 Node.js 和 npm</h2>
+                        <p>Claude Code 依赖 Node.js 环境和 npm 包管理工具。请先确认您已正确安装。</p>
+                    </div>
+                </div>
+
+                <h3>检查 Node.js 和 npm 是否安装</h3>
+                <p>打开终端（Terminal 或 CMD），执行：</p>
+                
+                <div class="code-block">
+                    <div class="code-header">检查版本命令</div>
+                    <pre><code class="language-bash">node -v
+npm -v</code></pre>
+                </div>
+
+                <p>如果显示版本号，说明已安装。</p>
+
+                <h3>安装 Node.js 和 npm</h3>
+                <p>如果未安装，请根据操作系统选择安装方法：</p>
+
+                <p><strong>Windows/macOS：</strong> 访问 Node.js 官网 <a href="https://nodejs.org/" class="link-button" target="_blank">https://nodejs.org/</a> ，下载最新的 LTS 版本并安装，npm 会随 Node.js 一起安装。</p>
+
+                <p><strong>Linux (Ubuntu/Debian)：</strong></p>
+                <div class="code-block">
+                    <div class="code-header">Linux 安装命令</div>
+                    <pre><code class="language-bash">curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs</code></pre>
+                </div>
+
+                <p>安装完成后，重新执行版本检查命令确认。</p>
+            </section>
+
+            <section id="install-claude" class="section">
+                <div class="step-container">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h2>使用 npm 全局安装 Claude Code CLI</h2>
+                        <p>执行以下命令安装 Claude Code 命令行工具：</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">安装 Claude Code</div>
+                    <pre><code class="language-bash">npm install -g @anthropic-ai/claude-code</code></pre>
+                </div>
+
+                <p>安装成功后，您可以通过命令 <code class="inline-code">claude</code> 调用 Claude Code。</p>
+            </section>
+
+            <section id="config-settings" class="section">
+                <div class="step-container">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h2>配置 Settings 文件</h2>
+                        <p>Claude Code 需要配置 API Key 和相关环境变量。</p>
+                    </div>
+                </div>
+
+                <h3>创建配置文件</h3>
+                <p>在用户主目录创建配置文件：</p>
+                <ul style="margin-left: 20px; margin-bottom: 20px;">
+                    <li>macOS/Linux: <code class="inline-code">~/.claude/settings.json</code></li>
+                    <li>Windows（WSL）: <code class="inline-code">~/.claude/settings.json</code></li>
+                </ul>
+
+                <p>如果 <code class="inline-code">.claude</code> 文件夹不存在，请先创建。</p>
+
+                <h3>编辑 settings.json 内容示例：</h3>
+                <div class="code-block">
+                    <div class="code-header">settings.json</div>
+                    <pre><code class="language-json">{
+  "env": {
+    "ANTHROPIC_API_KEY": "your-api-key-here",
+    "ANTHROPIC_BASE_URL": "https://api.packycode.com",
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": 64000,
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1
+  },
+  "permissions": {
+    "allow": [],
+    "deny": []
+  },
+  "apiKeyHelper": "echo 'your-api-key-here'"
+}</code></pre>
+                </div>
+
+                <div class="alert">
+                    <div class="alert-title">⚠️ 注意</div>
+                    <p>• 将 <code class="inline-code">"your-api-key-here"</code> 替换为您实际的 API Key。</p>
+                    <p>• 若使用 opus 模型，请将 <code class="inline-code">CLAUDE_CODE_MAX_OUTPUT_TOKENS</code> 改为 32000，且删除注释。</p>
+                </div>
+            </section>
+
+            <section id="get-api-key" class="section">
+                <div class="step-container">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h2>获取 API Key</h2>
+                        <p>登录 Claude Code 用户控制台，在 API Key 管理页面获取您的专属 API Key。请妥善保管。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="project-config" class="section">
+                <div class="step-container">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h2>项目配置（可选）</h2>
+                        <p>建议在项目根目录创建 <code class="inline-code">CLAUDE.md</code> 文件，保存项目架构、编码规范和工作流程，帮助 Claude Code 记忆项目上下文。</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">CLAUDE.md 示例</div>
+                    <pre><code class="language-markdown"># Claude Code 项目配置
+
+## 项目架构
+- Next.js 15 + App Router
+- TypeScript + Tailwind CSS
+- shadcn/ui 组件库
+
+## 编码标准
+- 使用 2 空格缩进
+- 优先使用函数式组件
+- 使用 TypeScript 严格模式
+
+## 工作流程
+- 提交前运行 lint 和 typecheck
+- 遵循 conventional commits 规范</code></pre>
+                </div>
+            </section>
+
+            <section id="start-using" class="section">
+                <div class="step-container">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h2>开始使用 Claude Code</h2>
+                        <p>进入项目目录，执行：</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">启动 Claude Code</div>
+                    <pre><code class="language-bash">claude</code></pre>
+                </div>
+
+                <p>即可启动 Claude Code，开始体验智能编码辅助。</p>
+            </section>
+
+            <section id="env-vars" class="section">
+                <h2>附录：环境变量说明</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>变量名</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code class="inline-code">ANTHROPIC_API_KEY</code></td>
+                                <td>您的 API 访问密钥</td>
+                            </tr>
+                            <tr>
+                                <td><code class="inline-code">ANTHROPIC_BASE_URL</code></td>
+                                <td>API 服务基础 URL，默认 <code class="inline-code">https://api.packycode.com</code></td>
+                            </tr>
+                            <tr>
+                                <td><code class="inline-code">CLAUDE_CODE_MAX_OUTPUT_TOKENS</code></td>
+                                <td>最大输出 token 数，opus 模型建议 32000，默认 64000</td>
+                            </tr>
+                            <tr>
+                                <td><code class="inline-code">CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC</code></td>
+                                <td>禁止非必要流量发送，建议设置为 1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="register" class="section">
+                <h2>注册与获取Key</h2>
+                
+                <div class="step-container">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>通过邀请链接注册账号</h3>
+                        <p>通过邀请链接注册账号，链接如下：</p>
+                        <a href="https://anyrouter.top/register?aff=8V5L" class="link-button" target="_blank">
+                            🎁 立即注册获得100美元奖励
+                        </a>
+                        <p>通过该链接使用 GitHub 账号注册，即可获得100美元奖励。</p>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>获取 API Key</h3>
+                        <p>注册成功后，登录官网 <a href="https://anyrouter.top" class="link-button" target="_blank">https://anyrouter.top</a>，在用户控制面板申请或查看您的 API Key。</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>祝您使用 Claude Code 顺利！如有疑问，请参考官方文档或联系技术支持。</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html>
