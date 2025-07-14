@@ -1,1 +1,4 @@
 memory-bank/
+# Ignore Claude-specific files
+.claude/
+CLAUDE.md

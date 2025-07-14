@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSL2 迁移与安全配置生成器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>WSL2 迁移与安全配置生成器</h1>
+            <p>通过几个简单的步骤，为您量身定制WSL2的配置方案。</p>
+        </header>
+
+        <main id="wizard">
+            <!-- Step 1: Base Info -->
+            <div class="step active" data-step="1">
+                <h2>第一步：基础信息与迁移</h2>
+                <p>首先，我们需要一些基本信息来开始迁移过程。</p>
+                <div class="form-group">
+                    <label for="distro-name">选择你的WSL发行版:</label>
+                    <select id="distro-name">
+                        <option>Ubuntu-22.04</option>
+                        <option>Ubuntu-20.04</option>
+                        <option>Debian</option>
+                        <option>openSUSE-Leap-15.5</option>
+                        <option value="other">其他 (手动输入)</option>
+                    </select>
+                    <input type="text" id="distro-name-other" class="hidden" placeholder="例如：Kali-Linux">
+                </div>
+                <div class="form-group">
+                    <label for="target-drive">迁移至哪个盘符？</label>
+                    <input type="text" id="target-drive" value="E:">
+                </div>
+                <div class="form-group">
+                    <label for="windows-username">你的Windows用户名:</label>
+                    <input type="text" id="windows-username" placeholder="例如：kilo-code">
+                    <small>用于生成正确的挂载路径，例如 C:\\Users\\<span class="user-placeholder">your_username</span></small>
+                </div>
+                <div class="navigation-buttons">
+                    <button class="next-btn">下一步 &rarr;</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Security Mode -->
+            <div class="step" data-step="2">
+                <h2>第二步：选择安全模式</h2>
+                <p>根据你的需求，选择一个合适的安全级别。</p>
+                <div class="option-group">
+                    <label>
+                        <input type="radio" name="security-mode" value="isolated" checked>
+                        <strong>完全隔离模式</strong>
+                        <small>最高安全性，WSL完全独立，只能访问后续指定的文件夹/磁盘。</small>
+                    </label>
+                    <label class="recommended">
+                        <input type="radio" name="security-mode" value="partial">
+                        <strong>部分挂载模式 (推荐)</strong>
+                        <small>C盘只读，系统文件安全，可额外指定读写区域，兼顾安全与便利。</small>
+                    </label>
+                    <label>
+                        <input type="radio" name="security-mode" value="default">
+                        <strong>默认挂载模式</strong>
+                        <small>最大便利性，所有Windows磁盘都可被WSL访问和修改。</small>
+                    </label>
+                </div>
+                <div class="navigation-buttons">
+                    <button class="prev-btn">&larr; 上一步</button>
+                    <button class="next-btn">下一步 &rarr;</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Access Scope -->
+            <div class="step" data-step="3">
+                <h2>第三步：选择WSL可访问范围</h2>
+                <p>为你的隔离环境选择一个希望从WSL中访问的Windows区域。</p>
+                <div class="option-group">
+                    <label>
+                        <input type="radio" name="access-scope" value="folder" checked>
+                        <strong>方案1: 指定文件夹</strong>
+                        <small>精确控制，只开放特定项目文件夹给WSL。 (例如: C:\\Users\\your_username\\Projects)</small>
+                    </label>
+                     <label class="recommended">
+                        <input type="radio" name="access-scope" value="disk">
+                        <strong>方案2: 指定磁盘 (推荐)</strong>
+                        <small>管理简单，将整个数据盘开放给WSL。</small>
+                    </label>
+                </div>
+                <div class="form-group hidden" id="folder-path-group">
+                    <label for="folder-path">指定文件夹路径:</label>
+                    <input type="text" id="folder-path" placeholder="例如: C:\\Users\\your_username\\Projects">
+                </div>
+                <div class="form-group hidden" id="disk-path-group">
+                    <label for="disk-path">指定磁盘盘符:</label>
+                    <input type="text" id="disk-path" placeholder="例如: D:">
+                </div>
+                <div class="navigation-buttons">
+                    <button class="prev-btn">&larr; 上一步</button>
+                    <button class="next-btn">生成教程 &rarr;</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Result -->
+            <div class="step" data-step="4">
+                <h2>你的专属配置指南</h2>
+                <p>根据你的选择，已生成以下配置步骤。请按顺序执行。</p>
+                <div id="tutorial-output">
+                    <!-- Generated tutorial will be injected here -->
+                </div>
+                 <div class="optional-feature">
+                    <details>
+                        <summary>高级选项：磁盘扩容管理 (建议忽略)</summary>
+                        <div id="disk-expansion-content">
+                           <!-- Expansion content will be injected here -->
+                        </div>
+                    </details>
+                </div>
+                <div class="navigation-buttons">
+                    <button class="prev-btn">&larr; 返回修改</button>
+                    <button id="restart-btn">重新开始</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

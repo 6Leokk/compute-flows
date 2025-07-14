@@ -1,0 +1,278 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+
+:root {
+    --bg-color: #1a1b26;
+    --card-bg: #24283b;
+    --text-color: #c0caf5;
+    --primary-color: #7aa2f7;
+    --secondary-color: #bb9af7;
+    --recommended-bg: #414868;
+    --border-color: #3b4261;
+    --input-bg: #2d324e;
+    --button-bg: #7aa2f7;
+    --button-text: #1a1b26;
+    --button-hover-bg: #a9b1d6;
+    --code-bg: #1e2029;
+    --code-text: #a9b1d6;
+}
+
+body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+header h1 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.step {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    display: none; /* Hidden by default */
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.step.active {
+    display: block; /* Shown when active */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.step h2 {
+    color: var(--secondary-color);
+    margin-top: 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group, .option-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label, .option-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.option-group label {
+    background: var(--input-bg);
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.option-group label:hover {
+    border-color: var(--primary-color);
+}
+
+.option-group label.recommended {
+    border-left: 4px solid var(--secondary-color);
+    position: relative;
+}
+
+.option-group label.recommended::before {
+    content: '推荐';
+    position: absolute;
+    top: -10px;
+    right: 15px;
+    background: var(--secondary-color);
+    color: var(--button-text);
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    border-radius: 12px;
+}
+
+.option-group input[type="radio"] {
+    margin-right: 0.5rem;
+}
+
+.option-group small {
+    display: block;
+    font-weight: 400;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 0.5rem;
+    padding-left: 22px;
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-color_30);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+button.next-btn, button#restart-btn {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+}
+
+button.next-btn:hover, button#restart-btn:hover {
+    background-color: var(--button-hover-bg);
+}
+
+button.prev-btn {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+button.prev-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--button-text);
+}
+
+.hidden {
+    display: none;
+}
+
+.user-placeholder {
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+/* Tutorial Output Styles */
+#tutorial-output h3 {
+    color: var(--secondary-color);
+    margin-top: 2rem;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+#tutorial-output h3:first-child {
+    margin-top: 0;
+}
+
+#tutorial-output p {
+    line-height: 1.6;
+}
+
+#tutorial-output pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 1.5rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: 'Courier New', Courier, monospace;
+    position: relative;
+}
+
+#tutorial-output pre .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+#tutorial-output pre:hover .copy-btn {
+    opacity: 1;
+}
+
+.optional-feature {
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+.optional-feature summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+.optional-feature summary:hover {
+    color: var(--primary-color);
+}
+
+.optional-feature details[open] {
+    margin-top: 1rem;
+}
+
+.optional-feature div {
+     padding-top: 1rem;
+     border-top: 1px dashed var(--border-color);
+     margin-top: 1rem;
+}
+
+
+@media (max-width: 600px) {
+    body {
+        padding: 1rem;
+    }
+    .step {
+        padding: 1.5rem;
+    }
+}
